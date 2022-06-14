@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="InspectionsScope" pattern="file[yii2-opentracing]:src//*||file[yii2-opentracing]:tests/unit//*||file[yii2-opentracing]:tests/functional//*||file[yii2-opentracing]:tests/console//*" />
+</component>
