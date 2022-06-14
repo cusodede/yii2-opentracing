@@ -9,19 +9,13 @@ use yii\log\FileTarget;
  * Class OpenTracingFileTarget
  */
 class OpenTracingFileTarget extends FileTarget {
-	public string $dir = '@runtime/logs';
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function init():void {
-		$this->enableRotation = false;//DevOps will handle file rotation.
-
-		$this->maxFileSize = 10240 * 4;
-
-		$this->logVars = [];
-		if (null === $this->logFile) {
-			$this->logFile = $this->dir.DIRECTORY_SEPARATOR.'ot-'.date('YmdH').'.log';
+		if (is_callable($this->logFile)) {
+			$this->logFile = call_user_func($this->logFile);
 		}
 
 		parent::init();

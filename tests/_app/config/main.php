@@ -53,6 +53,8 @@ $config = [
 				[
 					'class' => OpenTracingFileTarget::class,
 					'categories' => ['opentracing'],
+					'logVars' => [],
+					'logFile' => fn():string => '@app/runtime/logs/ot-'.date('YmdH').'.log'
 				]
 			],
 		],
