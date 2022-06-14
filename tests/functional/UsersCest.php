@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 use app\models\Users;
 use Codeception\Exception\ModuleException;
-use yii\base\InvalidConfigException;
 
 /**
  * Class UsersCest
@@ -14,7 +13,6 @@ class UsersCest {
 	 * @param FunctionalTester $I
 	 * @throws Throwable
 	 * @throws ModuleException
-	 * @throws InvalidConfigException
 	 * @throws Exception
 	 */
 	public function create(FunctionalTester $I):void {
