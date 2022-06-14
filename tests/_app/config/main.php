@@ -2,27 +2,23 @@
 declare(strict_types = 1);
 
 use app\models\Users;
+use cusodede\opentracing\log_targets\OpenTracingFileTarget;
+use cusodede\opentracing\OpenTracingComponent;
 use yii\caching\DummyCache;
 use yii\log\FileTarget;
 use yii\web\AssetManager;
 use yii\web\ErrorHandler;
-use kartik\grid\Module as GridModule;
 
 $db = require __DIR__.'/db.php';
 
 $config = [
 	'id' => 'basic',
 	'basePath' => dirname(__DIR__),
-	'bootstrap' => ['log'],
+	'bootstrap' => ['log', 'opentracing'],
 	'aliases' => [
 		'@vendor' => './vendor',
 		'@bower' => '@vendor/bower-asset',
 		'@npm' => '@vendor/npm-asset',
-	],
-	'modules' => [
-		'gridview' => [
-			'class' => GridModule::class,
-		],
 	],
 	'components' => [
 		'request' => [
@@ -39,13 +35,25 @@ $config = [
 			'class' => ErrorHandler::class,
 			'errorAction' => 'site/error',
 		],
+		'opentracing' => [
+			'class' => OpenTracingComponent::class,
+			'excludedRequestsPaths' => [
+				'assets/*'
+			]
+		],
 		'log' => [
 			'traceLevel' => YII_DEBUG?3:0,
 			'targets' => [
 				[
 					'class' => FileTarget::class,
-					'levels' => ['error', 'warning'],
+					'levels' => ['error'],
+					'except' => ['opentracing'],
+					'logVars' => []
 				],
+				[
+					'class' => OpenTracingFileTarget::class,
+					'categories' => ['opentracing'],
+				]
 			],
 		],
 		'urlManager' => [
