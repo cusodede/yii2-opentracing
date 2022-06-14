@@ -2,8 +2,8 @@
 declare(strict_types = 1);
 
 use app\models\Users;
-use cusodede\opentracing\log_targets\OpenTracingFileTarget;
 use cusodede\opentracing\OpenTracingComponent;
+use cusodede\opentracing\targets\OpenTracingFileTarget;
 use yii\caching\DummyCache;
 use yii\log\FileTarget;
 use yii\web\AssetManager;

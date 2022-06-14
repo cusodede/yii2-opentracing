@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace cusodede\opentracing\log_targets;
+namespace cusodede\opentracing\targets;
 
 use yii\log\FileTarget;
 
