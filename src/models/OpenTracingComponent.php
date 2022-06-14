@@ -45,14 +45,7 @@ class OpenTracingComponent extends Component {
 	 */
 	public function init():void {
 		parent::init();
-		try {
-			$requestPath = Yii::$app->request->pathInfo;
-		} catch (Throwable) {
-			$requestPath = null;
-		}
-
-		if (null !== $requestPath) {
-			//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
+		if (null !== $requestPath = Yii::$app?->request?->pathInfo) {//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
 			foreach ($this->excludedRequestsPaths as $excludedPath) {
 				if (StringHelper::matchWildcard($excludedPath, $requestPath)) {
 					return;
