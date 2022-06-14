@@ -33,6 +33,9 @@ class OTScope implements Scope {
 		$this->_finishSpanOnClose = $finishSpanOnClose;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function close():void {
 		if ($this->_finishSpanOnClose) {
 			$this->_span->finish();
