@@ -108,7 +108,6 @@ class OpenTracingComponent extends Component {
 		}
 
 		$this->attachHttpClientEvents();
-		$this->attachSoapClientEvents();
 	}
 
 	/**
