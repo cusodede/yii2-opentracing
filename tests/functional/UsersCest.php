@@ -2,17 +2,17 @@
 declare(strict_types = 1);
 
 use app\models\Users;
-use Codeception\Exception\ModuleException;
+use yii\base\InvalidConfigException;
 
 /**
- * Class UsersCest
+ * Class ManagersCest
  */
 class UsersCest {
 
 	/**
 	 * @param FunctionalTester $I
 	 * @throws Throwable
-	 * @throws ModuleException
+	 * @throws InvalidConfigException
 	 * @throws Exception
 	 */
 	public function create(FunctionalTester $I):void {
@@ -29,7 +29,7 @@ class UsersCest {
 			]
 		]);
 		$I->seeResponseCodeIs(200);
-		$I->seeInCurrentUrl('users/index');
+		$I->seeInCurrentUrl('users/view');
 		$I->assertCount(2, Users::find()->all());
 		$model = Users::findOne(['username' => 'Test Successful']);
 		$I->assertNotNull($model);
@@ -38,17 +38,4 @@ class UsersCest {
 		$I->assertEquals('123', $model->password);
 	}
 
-	/**
-	 * @param FunctionalTester $I
-	 * @return void
-	 * @throws ModuleException
-	 * @throws Exception
-	 */
-	public function testViewTitles(FunctionalTester $I):void {
-		$user = Users::CreateUser()->saveAndReturn();
-		$I->amLoggedInAs($user);
-		$I->amOnRoute('users/view?id=1');
-		$I->seeResponseCodeIs(200);
-		$I->canSeeInTitle("Просмотр {$user->username}");
-	}
 }

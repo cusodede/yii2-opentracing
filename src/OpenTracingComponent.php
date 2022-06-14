@@ -45,7 +45,7 @@ class OpenTracingComponent extends Component {
 	 */
 	public function init():void {
 		parent::init();
-		if (null !== $requestPath = Yii::$app?->request?->pathInfo) {//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
+		if (null !== $requestPath = $this->getPathInfo()) {//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
 			foreach ($this->excludedRequestsPaths as $excludedPath) {
 				if (StringHelper::matchWildcard($excludedPath, $requestPath)) {
 					return;
@@ -181,5 +181,16 @@ class OpenTracingComponent extends Component {
 		$logData['level'] = $logData['level']??'info';
 
 		return $logData;
+	}
+
+	/**
+	 * @return string|null Part of the request URL that is after the entry script and before the question or null, if no URI is requested
+	 */
+	protected function getPathInfo():?string {
+		try {
+			return Yii::$app->request->pathInfo;
+		} catch (Throwable) {
+			return null;
+		}
 	}
 }
