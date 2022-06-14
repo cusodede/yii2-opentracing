@@ -1,5 +1,5 @@
 {
-	"name": "cusodede/yii2-custom-opentracing",
+	"name": "cusodede/yii2-opentracing",
 	"description": "OpenTracing implementation",
 	"type": "yii2-extension",
 	"keywords": [
@@ -38,7 +38,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"cusodede\\yii2-custom-opentracing\\": "src"
+			"cusodede\\opentracing\\": "src"
 		}
 	},
 	"repositories": [
