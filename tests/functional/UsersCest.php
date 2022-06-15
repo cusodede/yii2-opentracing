@@ -5,7 +5,7 @@ use app\models\Users;
 use yii\base\InvalidConfigException;
 
 /**
- * Class ManagersCest
+ * Class UsersCest
  */
 class UsersCest {
 
