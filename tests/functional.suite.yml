@@ -13,8 +13,6 @@ modules:
     - Filesystem
     - Asserts
     - Yii2
-    - Db
-    - Cli
     - REST:
         depends: Yii2
     - Yii2:
@@ -23,4 +21,3 @@ modules:
 extensions:
   enabled:
     - Codeception\Extension\RunFailed
-    - Extensions\DatabaseMigrationExtension

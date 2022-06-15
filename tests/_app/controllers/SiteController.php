@@ -12,6 +12,10 @@ use yii\web\Controller;
  */
 class SiteController extends Controller {
 
+	public function actionIndex():string {
+		return "hello";
+	}
+
 	/**
 	 * @return string
 	 */

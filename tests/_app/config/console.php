@@ -20,7 +20,6 @@ $config = [
 		'cache' => [
 			'class' => DummyCache::class,
 		],
-		'db' => $db
 	],
 	'params' => [],
 ];

@@ -68,7 +68,6 @@ $config = [
 			'class' => AssetManager::class,
 			'basePath' => '@app/assets'
 		],
-		'db' => $db
 	],
 	'params' => [
 		'bsVersion' => '4'
