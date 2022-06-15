@@ -14,6 +14,7 @@ modules:
       configFile: 'tests/_app/config/main.php'
       transaction: false
       cleanup: true
+      disableLogger: false
 extensions:
   enabled:
     - Codeception\Extension\RunFailed
