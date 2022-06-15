@@ -156,7 +156,7 @@ class OpenTracingComponent extends Component {
 
 		$this->_tracer->flush();
 		foreach ($logsData as $spanLogData) {
-			Yii::$app->log($spanLogData, Logger::LEVEL_INFO, self::CATEGORY);
+			Yii::getLogger()->log($spanLogData, Logger::LEVEL_INFO, self::CATEGORY);
 		}
 
 		if (true === $forceFlush) {
