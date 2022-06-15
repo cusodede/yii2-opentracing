@@ -23,6 +23,8 @@ use const OpenTracing\Formats\HTTP_HEADERS;
  * Class OpenTracingComponent
  */
 class OpenTracingComponent extends Component {
+
+	public const CATEGORY = 'opentracing';
 	/**
 	 * @var string
 	 */
@@ -147,14 +149,14 @@ class OpenTracingComponent extends Component {
 	 * @return void
 	 */
 	public function finish(bool $forceFlush = false):void {
+
 		$this->_rootScope?->close();
 
 		$logsData = array_map([$this, 'extractSpanData'], $this->_tracer->getSpans());
 
 		$this->_tracer->flush();
-
 		foreach ($logsData as $spanLogData) {
-			Yii::getLogger()->log($spanLogData, Logger::LEVEL_INFO, 'opentracing');
+			Yii::$app->log($spanLogData, Logger::LEVEL_INFO, self::CATEGORY);
 		}
 
 		if (true === $forceFlush) {

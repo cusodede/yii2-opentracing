@@ -46,13 +46,14 @@ $config = [
 			'targets' => [
 				[
 					'class' => FileTarget::class,
-					'levels' => ['error'],
-					'except' => ['opentracing'],
+					'levels' => [],
+					'except' => [OpenTracingComponent::CATEGORY],
 					'logVars' => []
 				],
 				[
 					'class' => OpenTracingFileTarget::class,
-					'categories' => ['opentracing'],
+					'categories' => [OpenTracingComponent::CATEGORY],
+					'levels' => [],
 					'logVars' => [],
 					'logFile' => fn():string => '@app/runtime/logs/ot-'.date('YmdH').'.log'
 				]
