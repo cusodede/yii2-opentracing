@@ -27,10 +27,6 @@ $config = [
 		'cache' => [
 			'class' => DummyCache::class,
 		],
-		'user' => [
-			'identityClass' => Users::class,
-			'enableAutoLogin' => true,
-		],
 		'errorHandler' => [
 			'class' => ErrorHandler::class,
 			'errorAction' => 'site/error',
