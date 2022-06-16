@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 
 use app\models\Users;
+use cusodede\opentracing\handlers\HttpClientEventsHandler;
+use cusodede\opentracing\handlers\HttpRequestHandler;
 use cusodede\opentracing\OpenTracingComponent;
 use cusodede\opentracing\targets\OpenTracingFileTarget;
 use yii\caching\DummyCache;
@@ -39,6 +41,10 @@ $config = [
 			'class' => OpenTracingComponent::class,
 			'excludedRequestsPaths' => [
 				'assets/*'
+			],
+			'handlers' => [
+				HttpRequestHandler::class,
+				HttpClientEventsHandler::class
 			]
 		],
 		'log' => [

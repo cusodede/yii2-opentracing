@@ -3,24 +3,25 @@ declare(strict_types = 1);
 
 namespace cusodede\opentracing;
 
+use cusodede\opentracing\handlers\EventHandlerInterface;
 use DateTime;
 use OpenTracing\GlobalTracer;
 use Yii;
-use yii\base\Application as BaseApplication;
 use yii\base\Component;
-use yii\base\Event;
-use yii\helpers\ArrayHelper;
+use yii\base\InvalidConfigException;
 use yii\helpers\StringHelper;
-use yii\httpclient\Client;
-use yii\httpclient\RequestEvent;
 use yii\log\Logger;
-use yii\web\Application as WebApplication;
-use yii\web\Response;
 use Throwable;
-use const OpenTracing\Formats\HTTP_HEADERS;
 
 /**
  * Class OpenTracingComponent
+ *
+ * @property string $traceParentHeaderName
+ * @property string[] $excludedRequestsPaths Исключаемые из логирования урлы
+ * @property string[] $handlers Подключённые классы обработчиков
+ *
+ * @property-read ?OTTracer $tracer Обработчик, отвечающий за управление span'ми.
+ * @property-read ?OTScope $rootScope Базовый (верхний) trace span. Сеттер может быть вызван только напрямую, чтобы не было соблазна.
  */
 class OpenTracingComponent extends Component {
 
@@ -30,9 +31,13 @@ class OpenTracingComponent extends Component {
 	 */
 	public string $traceParentHeaderName = 'traceparent';
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	public array $excludedRequestsPaths = [];
+	/**
+	 * @var string[]
+	 */
+	public array $handlers = [];
 	/**
 	 * @var OTTracer|null обработчик, отвечающий за управление span'ми.
 	 */
@@ -68,79 +73,24 @@ class OpenTracingComponent extends Component {
 	}
 
 	/**
-	 * Навешиваем обработчики на события уровня приложения.
+	 * Загружает классы обработчиков событий из конфигов
+	 * @return EventHandlerInterface[]
+	 * @throws InvalidConfigException
 	 */
-	private function attachEvents():void {
-		Yii::$app->on(
-			BaseApplication::EVENT_BEFORE_REQUEST,
-			function() {
-				try {
-					$spanContext = GlobalTracer::get()->extract(HTTP_HEADERS, getallheaders());
-				} catch (Throwable) {
-					$spanContext = null;
-				}
-
-				$span = $this->_tracer->startSpan('application.request', null !== $spanContext?['child_of' => $spanContext]:[]);
-				$span->log(
-					OpenTracingLogDataHandler::transformRequestParams(Yii::$app->request)
-				);
-
-				$this->_rootScope = $this->_tracer->getScopeManager()->activate($span);
-			}
-		);
-
-		$responseLogCallback = function() {
-			$this->_rootScope->getSpan()->log(
-				OpenTracingLogDataHandler::transformResponseParams(Yii::$app->response)
-			);
-
-			$exception = ArrayHelper::getValue(Yii::$app->controller->module, 'errorHandler.exception');
-			if (null !== $exception) {
-				$this->_rootScope->getSpan()->log(
-					OpenTracingLogDataHandler::transformException($exception)
-				);
-			}
-		};
-
-		if (Yii::$app instanceof WebApplication) {
-			Yii::$app->response->on(Response::EVENT_AFTER_SEND, $responseLogCallback);
-		} else {
-			//Не уверен до конца, пригодно ли для консольного приложения, но пусть будет.
-			Yii::$app->on(BaseApplication::EVENT_AFTER_REQUEST, $responseLogCallback);
+	protected function getEventHandlers():array {
+		foreach ($this->handlers as $item) {
+			$result[] = Yii::createObject($item);
 		}
-
-		$this->attachHttpClientEvents();
+		return $result;
 	}
 
 	/**
-	 * Навешиваем обработчики на события yii\httpclient\Client - используется как прослойка для подключения к внешним АПИ.
+	 * Навешиваем обработчики на события уровня приложения.
 	 */
-	private function attachHttpClientEvents():void {
-		Event::on(
-			Client::class,
-			Client::EVENT_BEFORE_SEND,
-			function(RequestEvent $e) {
-				$activeScope = $this->_tracer->startActiveSpan('client.request');
-				$activeScope->getSpan()->log(
-					OpenTracingLogDataHandler::transformRequestParams($e->request)
-				);
-
-				$this->_tracer->inject($activeScope->getSpan()->getContext(), HTTP_HEADERS, $e->request->headers);
-			}
-		);
-
-		Event::on(
-			Client::class,
-			Client::EVENT_AFTER_SEND,
-			function(RequestEvent $e) {
-				if (null !== $activeScope = $this->_tracer->getScopeManager()->getActive()) {
-					$activeScope->getSpan()->log(
-						OpenTracingLogDataHandler::transformResponseParams($e->response)
-					);
-					$activeScope->close();
-				}
-			}
-		);
+	private function attachEvents():void {
+		foreach ($this->getEventHandlers() as $eventHandlers) {
+			$eventHandlers->attach($this);
+		}
 	}
 
 	/**
@@ -162,6 +112,27 @@ class OpenTracingComponent extends Component {
 		if (true === $forceFlush) {
 			Yii::getLogger()->flush();
 		}
+	}
+
+	/**
+	 * @return OTTracer|null
+	 */
+	public function getTracer():?OTTracer {
+		return $this->_tracer;
+	}
+
+	/**
+	 * @return OTScope|null
+	 */
+	public function getRootScope():?OTScope {
+		return $this->_rootScope;
+	}
+
+	/**
+	 * @param OTScope|null $rootScope
+	 */
+	public function setRootScope(?OTScope $rootScope):void {
+		$this->_rootScope = $rootScope;
 	}
 
 	/**
