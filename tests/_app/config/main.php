@@ -53,11 +53,13 @@ $config = [
 					'class' => FileTarget::class,
 					'levels' => [],
 					'except' => ['opentracing'],
-					'logVars' => []
+					'logVars' => [],
+					'logFile' => 'php://temp'//не нужно
 				],
 				[
 					'class' => OpenTracingFileTarget::class,
 					'categories' => ['opentracing'],
+					'exportInterval' => 1,//выключаю буферизацию
 					'logVars' => [],
 					'logFile' => fn():string => '@app/runtime/logs/ot-'.date('YmdH').'.log'
 				]
