@@ -4,13 +4,13 @@ declare(strict_types = 1);
 namespace cusodede\opentracing;
 
 use cusodede\opentracing\handlers\EventHandlerInterface;
-use DateTime;
+use cusodede\opentracing\handlers\HttpRequestHandler;
+use cusodede\opentracing\handlers\RootEventHandlerInterface;
 use OpenTracing\GlobalTracer;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\StringHelper;
-use yii\log\Logger;
 use Throwable;
 
 /**
@@ -18,6 +18,7 @@ use Throwable;
  *
  * @property string $traceParentHeaderName
  * @property string[] $excludedRequestsPaths Исключаемые из логирования урлы
+ * @property string $rootHandler Подключённый класс корневого обработчика
  * @property string[] $handlers Подключённые классы обработчиков
  *
  * @property-read ?OTTracer $tracer Обработчик, отвечающий за управление span'ми.
@@ -34,6 +35,11 @@ class OpenTracingComponent extends Component {
 	 * @var string[]
 	 */
 	public array $excludedRequestsPaths = [];
+
+	/**
+	 * @var string
+	 */
+	public string $rootHandler = HttpRequestHandler::class;
 	/**
 	 * @var string[]
 	 */
@@ -58,16 +64,22 @@ class OpenTracingComponent extends Component {
 			}
 		}
 
-		register_shutdown_function(function() {
-			$this->finish();
-		});
-
 		$this->_tracer = new OTTracer();
 		$this->_tracer->traceParentHeaderName = $this->traceParentHeaderName;
 
 		GlobalTracer::set($this->_tracer);
+		$this->getRootHandler()->attach($this);
+		foreach ($this->getEventHandlers() as $eventHandlers) {
+			$eventHandlers->attach($this->_tracer);
+		}
+	}
 
-		$this->attachEvents();
+	/**
+	 * @return RootEventHandlerInterface
+	 * @throws InvalidConfigException
+	 */
+	private function getRootHandler():RootEventHandlerInterface {
+		return Yii::createObject($this->rootHandler);
 	}
 
 	/**
@@ -76,40 +88,11 @@ class OpenTracingComponent extends Component {
 	 * @throws InvalidConfigException
 	 */
 	protected function getEventHandlers():array {
+		$result = [];
 		foreach ($this->handlers as $item) {
 			$result[] = Yii::createObject($item);
 		}
 		return $result;
-	}
-
-	/**
-	 * Навешиваем обработчики на события уровня приложения.
-	 */
-	private function attachEvents():void {
-		foreach ($this->getEventHandlers() as $eventHandlers) {
-			$eventHandlers->attach($this);
-		}
-	}
-
-	/**
-	 * Подготавливаем накопившиеся логи и отправляем в логгер.
-	 * @param bool $forceFlush `true` - если надо принудительно записать логи в таргеты.
-	 * @return void
-	 */
-	public function finish(bool $forceFlush = false):void {
-
-		$this->_rootScope?->close();
-
-		$logsData = array_map([$this, 'extractSpanData'], $this->_tracer->getSpans());
-
-		$this->_tracer->flush();
-		foreach ($logsData as $spanLogData) {
-			Yii::getLogger()->log($spanLogData, Logger::LEVEL_INFO, self::CATEGORY);
-		}
-
-		if (true === $forceFlush) {
-			Yii::getLogger()->flush();
-		}
 	}
 
 	/**
@@ -127,31 +110,10 @@ class OpenTracingComponent extends Component {
 	}
 
 	/**
-	 * @param OTScope|null $rootScope
+	 * @param OTScope $rootScope
 	 */
-	public function setRootScope(?OTScope $rootScope):void {
+	public function setRootScope(OTScope $rootScope):void {
 		$this->_rootScope = $rootScope;
-	}
-
-	/**
-	 * @param OTSpan $span
-	 * @return array
-	 */
-	private function extractSpanData(OTSpan $span):array {
-		$data = [
-			'TStamp' => DateTime::createFromFormat('U.u', number_format($span->getStartTime(), 6, '.', ''))->format(DateTime::RFC3339_EXTENDED),
-			'trace_id' => $span->getContext()->getTraceId(),
-			'parent_id' => $span->getContext()->getParentSpanId(),
-			'span_id' => $span->getContext()->getSpanId(),
-			'duration' => $span->getDuration(),
-			'operationName' => $span->getOperationName()
-		];
-
-		$logData = array_merge($data, $span->getTags(), $span->getContext()->getItems(), ...array_column($span->getLogs(), 'fields'));
-
-		$logData['level'] = $logData['level']??'info';
-
-		return $logData;
 	}
 
 	/**
@@ -164,4 +126,7 @@ class OpenTracingComponent extends Component {
 			return null;
 		}
 	}
+
+
+
 }

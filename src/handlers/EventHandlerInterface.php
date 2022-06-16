@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace cusodede\opentracing\handlers;
 
-use cusodede\opentracing\OpenTracingComponent;
+use cusodede\opentracing\OTTracer;
 
 /**
  * Interface EventHandlerInterface
@@ -11,8 +11,8 @@ use cusodede\opentracing\OpenTracingComponent;
 interface EventHandlerInterface {
 
 	/**
-	 * @param OpenTracingComponent $tracingComponent
+	 * @param OTTracer $tracer
 	 * @return void
 	 */
-	public function attach(OpenTracingComponent $tracingComponent):void;
+	public function attach(OTTracer $tracer):void;
 }

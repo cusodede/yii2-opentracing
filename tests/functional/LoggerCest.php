@@ -19,7 +19,7 @@ class LoggerCest {
 		$timestamp = time();
 		Yii::getLogger()->log(self::TEST_MESSAGE.'@'.$timestamp, Logger::LEVEL_INFO, 'opentracing');
 		$logFile = Yii::getAlias('@app/runtime/logs/ot-'.date('YmdH').'.log');
-
+//		Yii::getLogger()->flush(true);
 		$I->assertFileExists($logFile);
 		$I->openFile($logFile);
 		$I->seeInThisFile(self::TEST_MESSAGE.'@'.$timestamp);

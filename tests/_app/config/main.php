@@ -43,7 +43,6 @@ $config = [
 				'assets/*'
 			],
 			'handlers' => [
-				HttpRequestHandler::class,
 				HttpClientEventsHandler::class
 			]
 		],
