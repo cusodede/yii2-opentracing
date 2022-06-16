@@ -54,9 +54,7 @@ class OpenTracingComponent extends Component {
 		parent::init();
 		if (null !== $requestPath = $this->getPathInfo()) {//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
 			foreach ($this->excludedRequestsPaths as $excludedPath) {
-				if (StringHelper::matchWildcard($excludedPath, $requestPath)) {
-					return;
-				}
+				if (StringHelper::matchWildcard($excludedPath, $requestPath)) return;
 			}
 		}
 
