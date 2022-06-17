@@ -48,14 +48,8 @@ $config = [
 		],
 		'log' => [
 			'traceLevel' => YII_DEBUG?3:0,
+			'flushInterval' => 1,
 			'targets' => [
-				[
-					'class' => FileTarget::class,
-					'levels' => [],
-					'except' => ['opentracing'],
-					'logVars' => [],
-					'logFile' => 'php://temp'//не нужно
-				],
 				[
 					'class' => OpenTracingFileTarget::class,
 					'categories' => ['opentracing'],
