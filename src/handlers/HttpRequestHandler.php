@@ -5,8 +5,6 @@ namespace cusodede\opentracing\handlers;
 
 use cusodede\opentracing\OpenTracingComponent;
 use cusodede\opentracing\OpenTracingLogDataHandler;
-use cusodede\opentracing\OTScope;
-use cusodede\opentracing\OTTracer;
 use OpenTracing\GlobalTracer;
 use OpenTracing\SpanContext;
 use Throwable;
