@@ -3,6 +3,31 @@ OpenTracing support component
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/cusodede/yii2-opentracing/CI)
 
+# Установка
+
+Добавляем
+
+```
+{
+	"type": "vcs",
+	"url": "https://github.com/cusodede/yii2-opentracing"
+}
+```
+
+В секцию `repositories` файла `composer.json`, затем запускаем
+
+```
+php composer.phar require cusodede/yii2-opentracing "^1.0.0"
+```
+
+или добавляем
+
+```
+"cusodede/yii2-opentracing": "^1.0.0"
+```
+
+в секцию `require`.
+
 # Подключение
 
 ```php
