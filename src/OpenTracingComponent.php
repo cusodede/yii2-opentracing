@@ -9,19 +9,11 @@ use cusodede\opentracing\handlers\RootEventHandlerInterface;
 use DateTime;
 use OpenTracing\GlobalTracer;
 use Yii;
-use yii\base\Application as BaseApplication;
 use yii\base\Component;
-use yii\base\Event;
 use yii\base\InvalidConfigException;
-use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 use Throwable;
-use yii\httpclient\Client;
-use yii\httpclient\RequestEvent;
 use yii\log\Logger;
-use yii\web\Application as WebApplication;
-use yii\web\Response;
-use const OpenTracing\Formats\HTTP_HEADERS;
 
 /**
  * Class OpenTracingComponent
@@ -83,69 +75,12 @@ class OpenTracingComponent extends Component {
 
 		GlobalTracer::set($this->_tracer);
 
-		$this->attachEvents();
-		$this->attachHttpClientEvents();
-	}
-
-	/**
-	 * Навешиваем обработчики на события уровня приложения.
-	 */
-	private function attachEvents():void {
-		Yii::$app->on(BaseApplication::EVENT_BEFORE_REQUEST, function() {
-			try {
-				$spanContext = GlobalTracer::get()->extract(HTTP_HEADERS, getallheaders());
-			} catch (Throwable) {
-				$spanContext = null;
-			}
-
-			$span = $this->_tracer->startSpan('application.request', null !== $spanContext?['child_of' => $spanContext]:[]);
-			$span->log(OpenTracingLogDataHandler::transformRequestParams(Yii::$app->request));
-
-			$this->_rootScope = $this->_tracer->getScopeManager()->activate($span);
+		$this->getRootHandler()->attach($this);
+		foreach ($this->getEventHandlers() as $eventHandlers) {
+			$eventHandlers->attach($this->_tracer);
 		}
-		);
-
-		$responseLogCallback = function() {
-			$this->_rootScope->getSpan()->log(OpenTracingLogDataHandler::transformResponseParams(Yii::$app->response));
-
-			if (null !== $exception = ArrayHelper::getValue(Yii::$app->controller->module, 'errorHandler.exception')) {
-				$this->_rootScope->getSpan()->log(
-					OpenTracingLogDataHandler::transformException($exception)
-				);
-			}
-		};
-
-		if (Yii::$app instanceof WebApplication) {
-			Yii::$app->response->on(Response::EVENT_AFTER_SEND, $responseLogCallback);
-		} else {
-			//Не уверен до конца, пригодно ли для консольного приложения, но пусть будет.
-			Yii::$app->on(BaseApplication::EVENT_AFTER_REQUEST, $responseLogCallback);
-		}
-
 	}
 
-	/**
-	 * Навешиваем обработчики на события yii\httpclient\Client - используется как прослойка для подключения к внешним АПИ.
-	 */
-	private function attachHttpClientEvents():void {
-		Event::on(Client::class, Client::EVENT_BEFORE_SEND, function(RequestEvent $e) {
-			$activeScope = $this->_tracer->startActiveSpan('client.request');
-			$activeScope->getSpan()->log(
-				OpenTracingLogDataHandler::transformRequestParams($e->request)
-			);
-
-			$this->_tracer->inject($activeScope->getSpan()->getContext(), HTTP_HEADERS, $e->request->headers);
-		});
-
-		Event::on(Client::class, Client::EVENT_AFTER_SEND, function(RequestEvent $e) {
-			if (null !== $activeScope = $this->_tracer->getScopeManager()->getActive()) {
-				$activeScope->getSpan()->log(
-					OpenTracingLogDataHandler::transformResponseParams($e->response)
-				);
-				$activeScope->close();
-			}
-		});
-	}
 
 	/**
 	 * Подготавливаем накопившиеся логи и отправляем в логгер.

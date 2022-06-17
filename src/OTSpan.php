@@ -7,7 +7,6 @@ use OpenTracing\Span;
 
 /**
  * Class OTSpan
- * @package app\components\opentracing
  */
 class OTSpan implements Span {
 	/**
