@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace cusodede\opentracing;
 
-use DateTime;
 use OpenTracing\Span;
-use Yii;
-use yii\log\Logger;
 
 /**
  * Class OTSpan
@@ -24,6 +21,10 @@ class OTSpan implements Span {
 	 * @var array
 	 */
 	private array $_tags = [];
+	/**
+	 * @var array
+	 */
+	private array $_logs = [];
 	/**
 	 * @var float
 	 */
@@ -103,7 +104,14 @@ class OTSpan implements Span {
 	 * {@inheritdoc}
 	 */
 	public function log(array $fields = [], $timestamp = null):void {
-		Yii::getLogger()->log($this->createLogRecord($fields), Logger::LEVEL_INFO, OpenTracingComponent::CATEGORY);
+		$this->_logs[] = ['timestamp' => $timestamp?:time(), 'fields' => $fields];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getLogs():array {
+		return $this->_logs;
 	}
 
 	/**
@@ -125,26 +133,5 @@ class OTSpan implements Span {
 	 */
 	public function finish($finishTime = null):void {
 		$this->_duration = ($finishTime?:(int)(microtime(true) * 1000)) - (int)($this->_startTime * 1000);
-	}
-
-	/**
-	 * @param array $fields
-	 * @return array
-	 */
-	private function createLogRecord(array $fields):array {
-		$data = [
-			'TStamp' => DateTime::createFromFormat('U.u', number_format($this->getStartTime(), 6, '.', ''))->format(DateTime::RFC3339_EXTENDED),
-			'trace_id' => $this->getContext()->getTraceId(),
-			'parent_id' => $this->getContext()->getParentSpanId(),
-			'span_id' => $this->getContext()->getSpanId(),
-			'duration' => $this->getDuration(),
-			'operationName' => $this->getOperationName()
-		];
-
-		$logData = array_merge($data, $this->getTags(), $this->getContext()->getItems(), $fields);
-
-		$logData['level'] = $logData['level']??'info';
-
-		return $logData;
 	}
 }
