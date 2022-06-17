@@ -664,16 +664,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "4.1.31",
+            "version": "4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "15524571ae0686a7facc2eb1f40f600e5bbce9e5"
+                "reference": "e646d160bf1223d3595b227b69d903777fbcfb5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/15524571ae0686a7facc2eb1f40f600e5bbce9e5",
-                "reference": "15524571ae0686a7facc2eb1f40f600e5bbce9e5",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/e646d160bf1223d3595b227b69d903777fbcfb5f",
+                "reference": "e646d160bf1223d3595b227b69d903777fbcfb5f",
                 "shasum": ""
             },
             "require": {
@@ -736,11 +736,11 @@
                 {
                     "name": "Michael Bodnarchuk",
                     "email": "davert@mail.ua",
-                    "homepage": "http://codegyre.com"
+                    "homepage": "https://codegyre.com"
                 }
             ],
             "description": "BDD-style testing framework",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "keywords": [
                 "BDD",
                 "TDD",
@@ -750,7 +750,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/4.1.31"
+                "source": "https://github.com/Codeception/Codeception/tree/4.2.0"
             },
             "funding": [
                 {
@@ -758,7 +758,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2022-03-13T17:07:08+00:00"
+            "time": "2022-06-16T05:33:39+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -1103,12 +1103,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cusodede/module-yii2.git",
-                "reference": "672dfa2e62b3c13e3997224b6c1c6cafc1fdac87"
+                "reference": "b91b8b05986d624928c5a6f130bd6d7e619ba199"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cusodede/module-yii2/zipball/672dfa2e62b3c13e3997224b6c1c6cafc1fdac87",
-                "reference": "672dfa2e62b3c13e3997224b6c1c6cafc1fdac87",
+                "url": "https://api.github.com/repos/cusodede/module-yii2/zipball/b91b8b05986d624928c5a6f130bd6d7e619ba199",
+                "reference": "b91b8b05986d624928c5a6f130bd6d7e619ba199",
                 "shasum": ""
             },
             "require": {
@@ -1159,7 +1159,7 @@
             "support": {
                 "source": "https://github.com/cusodede/module-yii2/tree/feature_disable_logger"
             },
-            "time": "2022-06-15T10:20:30+00:00"
+            "time": "2022-06-17T08:12:31+00:00"
         },
         {
             "name": "codeception/phpunit-wrapper",
