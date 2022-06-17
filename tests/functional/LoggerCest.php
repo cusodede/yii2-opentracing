@@ -32,8 +32,7 @@ class LoggerCest {
 	public function trace(FunctionalTester $I):void {
 		$I->amOnRoute('site/index');
 		$I->seeResponseCodeIs(200);
-		//Принудительно сбрасываем лог в файл
-		Yii::getLogger()->flush(true);
+
 		$logFile = Yii::getAlias('@app/runtime/logs/ot-'.date('YmdH').'.log');
 		$I->assertFileExists($logFile);
 		/** @var array $logContents */
