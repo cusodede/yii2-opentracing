@@ -34,7 +34,6 @@ class LoggerCest {
 	 * @param FunctionalTester $I
 	 * @throws Throwable
 	 * @throws Exception
-	 * @skip Скипаем тест, потому что запись в файле появляется только после завершения тестов из-за особенностей архитектуры компонента
 	 */
 	public function trace(FunctionalTester $I):void {
 		$I->amOnRoute('site/index');
@@ -75,6 +74,7 @@ class LoggerCest {
 		$traceParts = explode('-', $incomingHeaderContent);
 		$I->haveHttpHeader('traceparent', $incomingHeaderContent);
 		$response = $I->sendGet('site/api');
+
 		$I->assertEquals(['status' => 'ok'], json_decode($response,true));
 		$I->seeResponseCodeIs(200);
 		//Сбрасываем лог в файл
@@ -85,11 +85,6 @@ class LoggerCest {
 		$I->assertIsArray($logContents);
 		$requestLogString = $logContents[count($logContents) - 1];
 		$requestLogArray = json_decode($requestLogString, true);
-
-		/*
-		 * Последняя строка в логе должна иметь вид
-		 * {"TStamp":"2022-06-17T08:10:24.131+00:00","trace_id":"011c30f465e8d12e21f253986fb2ccd8","parent_id":"0000000000000000","span_id":"b679ebe32f454ce2","duration":1666,"operationName":"application.request","req.host":"http://localhost","req.method":"GET","req.remote_ip":null,"req.remote_host":null,"req.remote_port":null,"req.url":"http://localhost/site/index","req.path":"site/index","req.referer":null,"req.size":0,"req.headers":{"user-agent":"Symfony BrowserKit","host":"localhost"},"req.body":[],"direction":"in","env":"test","rsp.http_code":200,"rsp.size":5,"rsp.headers":{"content-type":"text/html; charset=UTF-8"},"rsp.body":null,"user_id":null,"level":"info"}
-		 */
 
 		$I->assertEquals($traceParts[1], $requestLogArray["trace_id"]);
 		$I->assertEquals($traceParts[2], $requestLogArray["parent_id"]);
