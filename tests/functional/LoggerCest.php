@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 
 use cusodede\opentracing\OpenTracingComponent;
+use Helper\Functional;
 use yii\log\Logger;
 
 /**
@@ -33,7 +34,6 @@ class LoggerCest {
 	 * @param FunctionalTester $I
 	 * @throws Throwable
 	 * @throws Exception
-	 * @skip Скипаем тест, потому что запись в файле появляется только после завершения тестов из-за особенностей архитектуры компонента
 	 */
 	public function trace(FunctionalTester $I):void {
 		$I->amOnRoute('site/index');
@@ -62,8 +62,32 @@ class LoggerCest {
 		$I->assertEquals("0000000000000000", $requestLogArray["parent_id"]);
 		$I->assertEquals("in", $requestLogArray["direction"]);
 		/*Проверить всё и вся не получится, урл зависит от окружения, и остальные параметры тоже плавающие*/
+	}
 
+	/**
+	 * Отправляем запрос с уже существующим trace_id, он должен включиться в лог
+	 * @param FunctionalTester $I
+	 * @return void
+	 */
+	public function incomingTrace(FunctionalTester $I):void {
+		$incomingHeaderContent = Functional::gen_trace_header();
+		$traceParts = explode('-', $incomingHeaderContent);
+		$I->haveHttpHeader('traceparent', $incomingHeaderContent);
+		$response = $I->sendGet('site/api');
 
+		$I->assertEquals(['status' => 'ok'], json_decode($response,true));
+		$I->seeResponseCodeIs(200);
+		//Сбрасываем лог в файл
+		Yii::getLogger()->flush();
+		$logFile = Yii::getAlias('@app/runtime/logs/ot-'.date('YmdH').'.log');
+		/** @var array $logContents */
+		$logContents = file($logFile);
+		$I->assertIsArray($logContents);
+		$requestLogString = $logContents[count($logContents) - 1];
+		$requestLogArray = json_decode($requestLogString, true);
+
+		$I->assertEquals($traceParts[1], $requestLogArray["trace_id"]);
+		$I->assertEquals($traceParts[2], $requestLogArray["parent_id"]);
 	}
 
 }

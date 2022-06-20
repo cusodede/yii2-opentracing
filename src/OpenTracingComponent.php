@@ -9,6 +9,7 @@ use cusodede\opentracing\handlers\RootEventHandlerInterface;
 use DateTime;
 use OpenTracing\GlobalTracer;
 use Yii;
+use yii\base\Application;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\StringHelper;
@@ -22,6 +23,7 @@ use yii\log\Logger;
  * @property string[] $excludedRequestsPaths Исключаемые из логирования урлы
  * @property string $rootHandler Подключённый класс корневого обработчика
  * @property string[] $handlers Подключённые классы обработчиков
+ * @property bool $finish_on_shutdown True: сбрасывать буфер сообщений в лог при завершении работы скрипта, False: при событии Application::EVENT_AFTER_REQUEST
  *
  * @property-read ?OTTracer $tracer Обработчик, отвечающий за управление span'ми.
  * @property-read ?OTScope $rootScope Базовый (верхний) trace span. Сеттер может быть вызван только напрямую, чтобы не было соблазна.
@@ -46,6 +48,12 @@ class OpenTracingComponent extends Component {
 	 * @var string[]
 	 */
 	public array $handlers = [];
+
+	/**
+	 * @var bool
+	 */
+	public bool $finish_on_shutdown = false;
+
 	/**
 	 * @var OTTracer|null обработчик, отвечающий за управление span'ми.
 	 */
@@ -66,9 +74,11 @@ class OpenTracingComponent extends Component {
 			}
 		}
 
-		register_shutdown_function(function() {
-			$this->finish();
-		});
+		if ($this->finish_on_shutdown) {
+			register_shutdown_function([$this,'finish']);
+		} else {
+			Yii::$app->on(Application::EVENT_AFTER_REQUEST, [$this,'finish']);
+		}
 
 		$this->_tracer = new OTTracer();
 		$this->_tracer->traceParentHeaderName = $this->traceParentHeaderName;
@@ -84,10 +94,9 @@ class OpenTracingComponent extends Component {
 
 	/**
 	 * Подготавливаем накопившиеся логи и отправляем в логгер.
-	 * @param bool $forceFlush `true` - если надо принудительно записать логи в таргеты.
 	 * @return void
 	 */
-	public function finish(bool $forceFlush = false):void {
+	public function finish():void {
 		$this->_rootScope?->close();
 
 		$logsData = array_map([$this, 'extractSpanData'], $this->_tracer->getSpans());
@@ -96,10 +105,6 @@ class OpenTracingComponent extends Component {
 
 		foreach ($logsData as $spanLogData) {
 			Yii::getLogger()->log($spanLogData, Logger::LEVEL_INFO, 'opentracing');
-		}
-
-		if (true === $forceFlush) {
-			Yii::getLogger()->flush();
 		}
 	}
 
