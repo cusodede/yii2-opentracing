@@ -3,11 +3,9 @@ declare(strict_types = 1);
 
 use app\models\Users;
 use cusodede\opentracing\handlers\HttpClientEventsHandler;
-use cusodede\opentracing\handlers\HttpRequestHandler;
 use cusodede\opentracing\OpenTracingComponent;
 use cusodede\opentracing\targets\OpenTracingFileTarget;
 use yii\caching\DummyCache;
-use yii\log\FileTarget;
 use yii\web\AssetManager;
 use yii\web\ErrorHandler;
 
