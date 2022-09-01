@@ -42,7 +42,7 @@ class HttpRequestHandler implements RootEventHandlerInterface {
 		};
 
 		if (Yii::$app instanceof WebApplication) {
-			Yii::$app->response->on(Response::EVENT_AFTER_SEND, $responseLogCallback);
+			Yii::$app->response->on(Response::EVENT_BEFORE_SEND, $responseLogCallback);
 		} else {
 			/**
 			 * Не уверен до конца, пригодно ли для консольного приложения, но пусть будет.
