@@ -93,8 +93,11 @@ class OpenTracingLogDataHandler {
 				'rsp.headers' => self::filterHeaders($response->getHeaders()->toArray()),
 				'rsp.body' => Response::FORMAT_HTML === $response->format?null:$response->content
 			];
-
-			if (Yii::$app->has('user')) {
+			/**
+			 * It's necessary to check if session hasn't finished at this moment, because Yii tries to get user id from session at first, and it'll fail
+			 * if user isn't logged.
+			 */
+			if (Yii::$app->has('user') && Yii::$app->session->isActive) {
 				$array['user_id'] = Yii::$app->user->id;
 			}
 		}
