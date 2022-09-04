@@ -55,7 +55,7 @@ class OTTracer implements Tracer {
 		if ([] === $extractors) {
 			$this->_extractors = [
 				HTTP_HEADERS => function($carrier) {
-					if (null !== $traceParentInfo = ArrayHelper::getValue(array_change_key_case($carrier, CASE_LOWER), strtolower($this->traceParentHeaderName))) {//RFC2616 headers are case-insensitive
+					if (null !== $traceParentInfo = ArrayHelper::getValue(array_change_key_case($carrier), strtolower($this->traceParentHeaderName))) {//RFC2616 headers are case-insensitive
 						$traceParts = explode('-', $traceParentInfo);
 						if (isset($traceParts[1], $traceParts[2])) {
 							return new OTSpanContext($traceParts[1], $traceParts[2]);
