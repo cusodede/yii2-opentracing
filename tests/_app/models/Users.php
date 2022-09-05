@@ -19,13 +19,6 @@ class Users extends Model implements IdentityInterface {
 	/**
 	 * {@inheritdoc}
 	 */
-	public static function tableName():string {
-		return 'users';
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
 	public function attributeLabels():array {
 		return [
 			'id' => 'ID',
