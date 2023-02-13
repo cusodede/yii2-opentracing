@@ -4,14 +4,18 @@ declare(strict_types = 1);
 namespace cusodede\opentracing;
 
 use cusodede\opentracing\handlers\EventHandlerInterface;
+use cusodede\opentracing\handlers\formatters\DefaultDataFormattersFactory;
 use cusodede\opentracing\handlers\HttpRequestHandler;
 use cusodede\opentracing\handlers\RootEventHandlerInterface;
+use cusodede\opentracing\handlers\formatters\DataFormattersFactory;
 use DateTime;
 use OpenTracing\GlobalTracer;
 use Yii;
 use yii\base\Application;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\di\Instance;
+use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 use Throwable;
 use yii\log\Logger;
@@ -39,7 +43,10 @@ class OpenTracingComponent extends Component {
 	 * @var string[]
 	 */
 	public array $excludedRequestsPaths = [];
-
+	/**
+	 * @var DataFormattersFactory
+	 */
+	public DataFormattersFactory $dataFormattersFactory;
 	/**
 	 * @var string
 	 */
@@ -68,6 +75,9 @@ class OpenTracingComponent extends Component {
 	 */
 	public function init():void {
 		parent::init();
+
+		$this->dataFormattersFactory = new DefaultDataFormattersFactory();
+
 		if (null !== $requestPath = $this->getPathInfo()) {//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
 			foreach ($this->excludedRequestsPaths as $excludedPath) {
 				if (StringHelper::matchWildcard($excludedPath, $requestPath)) return;
@@ -87,7 +97,7 @@ class OpenTracingComponent extends Component {
 
 		$this->getRootHandler()->attach($this);
 		foreach ($this->getEventHandlers() as $eventHandlers) {
-			$eventHandlers->attach($this->_tracer);
+			$eventHandlers->attach($this);
 		}
 	}
 
