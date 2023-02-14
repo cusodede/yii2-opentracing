@@ -21,7 +21,7 @@ class DefaultDataFormattersFactory implements DataFormattersFactory
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getResponseDataFormatter(): ResponseDataFormatter
+	public function getResponseDataFormatter(): ResponseDataFormatterInterface
 	{
 		return new DefaultResponseDataFormatter();
 	}

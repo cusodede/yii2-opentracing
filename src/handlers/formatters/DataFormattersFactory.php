@@ -16,9 +16,9 @@ interface DataFormattersFactory
 	public function getRequestDataFormatter(): RequestDataFormatterInterface;
 
 	/**
-	 * @return ResponseDataFormatter
+	 * @return ResponseDataFormatterInterface
 	 */
-	public function getResponseDataFormatter(): ResponseDataFormatter;
+	public function getResponseDataFormatter(): ResponseDataFormatterInterface;
 
 	/**
 	 * @return ExceptionDataFormatterInterface

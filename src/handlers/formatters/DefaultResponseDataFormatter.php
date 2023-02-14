@@ -13,7 +13,7 @@ use yii\web\Response;
  *
  * @package app\components\opentracing
  */
-class DefaultResponseDataFormatter implements ResponseDataFormatter
+class DefaultResponseDataFormatter implements ResponseDataFormatterInterface
 {
 	/**
 	 * response's max body size (in bytes)
