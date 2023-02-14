@@ -49,5 +49,10 @@
 			"type": "vcs",
 			"url": "https://github.com/cusodede/module-yii2"
 		}
-	]
+	],
+	"config": {
+		"allow-plugins": {
+			"yiisoft/yii2-composer": true
+		}
+	}
 }
