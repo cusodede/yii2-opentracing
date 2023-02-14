@@ -11,9 +11,9 @@ namespace cusodede\opentracing\handlers\formatters;
 interface DataFormattersFactory
 {
 	/**
-	 * @return RequestDataFormatter
+	 * @return RequestDataFormatterInterface
 	 */
-	public function getRequestDataFormatter(): RequestDataFormatter;
+	public function getRequestDataFormatter(): RequestDataFormatterInterface;
 
 	/**
 	 * @return ResponseDataFormatter
@@ -21,7 +21,7 @@ interface DataFormattersFactory
 	public function getResponseDataFormatter(): ResponseDataFormatter;
 
 	/**
-	 * @return ExceptionDataFormatter
+	 * @return ExceptionDataFormatterInterface
 	 */
-	public function getExceptionDataFormatter(): ExceptionDataFormatter;
+	public function getExceptionDataFormatter(): ExceptionDataFormatterInterface;
 }

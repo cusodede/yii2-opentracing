@@ -13,7 +13,7 @@ use yii\web\Request;
  *
  * @package app\components\opentracing
  */
-class DefaultRequestDataFormatter implements RequestDataFormatter
+class DefaultRequestDataFormatter implements RequestDataFormatterInterface
 {
 	/**
 	 * {@inheritDoc}

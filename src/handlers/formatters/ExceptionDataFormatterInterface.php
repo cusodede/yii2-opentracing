@@ -5,7 +5,10 @@ namespace cusodede\opentracing\handlers\formatters;
 
 use Throwable;
 
-interface ExceptionDataFormatter
+/**
+ * интерфейс форматтеров логирования данных для исключений
+ */
+interface ExceptionDataFormatterInterface
 {
 	/**
 	 * @param Throwable $e

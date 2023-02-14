@@ -13,7 +13,7 @@ class DefaultDataFormattersFactory implements DataFormattersFactory
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getRequestDataFormatter(): RequestDataFormatter
+	public function getRequestDataFormatter(): RequestDataFormatterInterface
 	{
 		return new DefaultRequestDataFormatter();
 	}
@@ -29,7 +29,7 @@ class DefaultDataFormattersFactory implements DataFormattersFactory
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getExceptionDataFormatter(): ExceptionDataFormatter
+	public function getExceptionDataFormatter(): ExceptionDataFormatterInterface
 	{
 		return new DefaultExceptionDataFormatter();
 	}

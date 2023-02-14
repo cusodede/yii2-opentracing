@@ -12,7 +12,7 @@ use yii\web\HttpException;
  *
  * @package app\components\opentracing
  */
-class DefaultExceptionDataFormatter implements ExceptionDataFormatter
+class DefaultExceptionDataFormatter implements ExceptionDataFormatterInterface
 {
 	/**
 	 * {@inheritDoc}
