@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace cusodede\opentracing\handlers;
 
 use cusodede\opentracing\OpenTracingComponent;
-use cusodede\opentracing\OTTracer;
 use yii\base\Event;
 use yii\httpclient\Client;
 use yii\httpclient\RequestEvent;
@@ -25,7 +24,7 @@ class HttpClientEventsHandler implements RootEventHandlerInterface {
 				$tracingComponent->dataFormattersFactory->getRequestDataFormatter()->format($e->request)
 			);
 
-			$tracer->inject($activeScope->getSpan()->getContext(), HTTP_HEADERS, $e->request->headers);
+			$tracingComponent->tracer->inject($activeScope->getSpan()->getContext(), HTTP_HEADERS, $e->request->headers);
 		});
 
 		Event::on(Client::class, Client::EVENT_AFTER_SEND, static function(RequestEvent $e) use ($tracingComponent) {

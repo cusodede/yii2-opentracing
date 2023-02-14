@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace cusodede\opentracing;
 
-use cusodede\opentracing\handlers\EventHandlerInterface;
 use cusodede\opentracing\handlers\formatters\DefaultDataFormattersFactory;
 use cusodede\opentracing\handlers\HttpRequestHandler;
 use cusodede\opentracing\handlers\RootEventHandlerInterface;
@@ -14,8 +13,6 @@ use Yii;
 use yii\base\Application;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
-use yii\di\Instance;
-use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 use Throwable;
 use yii\log\Logger;
@@ -149,7 +146,7 @@ class OpenTracingComponent extends Component {
 
 	/**
 	 * Загружает классы обработчиков событий из конфигов
-	 * @return EventHandlerInterface[]
+	 * @return RootEventHandlerInterface[]
 	 * @throws InvalidConfigException
 	 */
 	protected function getEventHandlers():array {
