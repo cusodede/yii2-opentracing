@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace cusodede\opentracing;
 
-use cusodede\opentracing\handlers\EventHandlerInterface;
+use cusodede\opentracing\handlers\formatters\DefaultDataFormattersFactory;
 use cusodede\opentracing\handlers\HttpRequestHandler;
 use cusodede\opentracing\handlers\RootEventHandlerInterface;
+use cusodede\opentracing\handlers\formatters\DataFormattersFactory;
 use DateTime;
 use OpenTracing\GlobalTracer;
 use Yii;
@@ -39,7 +40,10 @@ class OpenTracingComponent extends Component {
 	 * @var string[]
 	 */
 	public array $excludedRequestsPaths = [];
-
+	/**
+	 * @var DataFormattersFactory
+	 */
+	public DataFormattersFactory $dataFormattersFactory;
 	/**
 	 * @var string
 	 */
@@ -68,6 +72,9 @@ class OpenTracingComponent extends Component {
 	 */
 	public function init():void {
 		parent::init();
+
+		$this->dataFormattersFactory = new DefaultDataFormattersFactory();
+
 		if (null !== $requestPath = $this->getPathInfo()) {//Не будем даже инициализировать компонент, если url запроса исключается из логирования.
 			foreach ($this->excludedRequestsPaths as $excludedPath) {
 				if (StringHelper::matchWildcard($excludedPath, $requestPath)) return;
@@ -75,9 +82,9 @@ class OpenTracingComponent extends Component {
 		}
 
 		if ($this->finish_on_shutdown) {
-			register_shutdown_function([$this,'finish']);
+			register_shutdown_function([$this, 'finish']);
 		} else {
-			Yii::$app->on(Application::EVENT_AFTER_REQUEST, [$this,'finish']);
+			Yii::$app->on(Application::EVENT_AFTER_REQUEST, [$this, 'finish']);
 		}
 
 		$this->_tracer = new OTTracer();
@@ -87,10 +94,9 @@ class OpenTracingComponent extends Component {
 
 		$this->getRootHandler()->attach($this);
 		foreach ($this->getEventHandlers() as $eventHandlers) {
-			$eventHandlers->attach($this->_tracer);
+			$eventHandlers->attach($this);
 		}
 	}
-
 
 	/**
 	 * Подготавливаем накопившиеся логи и отправляем в логгер.
@@ -139,7 +145,7 @@ class OpenTracingComponent extends Component {
 
 	/**
 	 * Загружает классы обработчиков событий из конфигов
-	 * @return EventHandlerInterface[]
+	 * @return RootEventHandlerInterface[]
 	 * @throws InvalidConfigException
 	 */
 	protected function getEventHandlers():array {

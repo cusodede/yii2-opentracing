@@ -4,7 +4,6 @@ declare(strict_types = 1);
 namespace cusodede\opentracing\handlers;
 
 use cusodede\opentracing\OpenTracingComponent;
-use cusodede\opentracing\OpenTracingLogDataHandler;
 use OpenTracing\GlobalTracer;
 use OpenTracing\SpanContext;
 use Throwable;
@@ -29,15 +28,22 @@ class HttpRequestHandler implements RootEventHandlerInterface {
 			$span = $tracingComponent->tracer->startSpan('application.request', null === $spanContext
 				?[]
 				:['child_of' => $spanContext]);
-			$span->log(OpenTracingLogDataHandler::transformRequestParams(Yii::$app->request));
+			$span->log($tracingComponent->dataFormattersFactory->getRequestDataFormatter()->format(Yii::$app->request));
 			$tracingComponent->setRootScope($tracingComponent->tracer->getScopeManager()->activate($span));
 		});
 
 		$responseLogCallback = function() use ($tracingComponent) {
-			$tracingComponent->rootScope->getSpan()->log(OpenTracingLogDataHandler::transformResponseParams(Yii::$app->response));
+			$tracingComponent->rootScope->getSpan()->log($tracingComponent->dataFormattersFactory->getResponseDataFormatter()->format(Yii::$app->request));
 
 			if (null !== $exception = ArrayHelper::getValue(Yii::$app->controller->module, 'errorHandler.exception')) {
-				$tracingComponent->rootScope->getSpan()->log(OpenTracingLogDataHandler::transformException($exception));
+				try {
+					$exceptionId = ArrayHelper::getValue(Yii::$app->controller->module, 'errorHandler.id');
+				} catch (Throwable) {
+					$exceptionId = null;
+				}
+				$tracingComponent->rootScope->getSpan()->log(
+					$tracingComponent->dataFormattersFactory->getExceptionDataFormatter()->format($exception, $exceptionId)
+				);
 			}
 		};
 
