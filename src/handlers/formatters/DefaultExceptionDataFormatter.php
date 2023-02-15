@@ -12,19 +12,17 @@ use yii\web\HttpException;
  *
  * @package app\components\opentracing
  */
-class DefaultExceptionDataFormatter implements ExceptionDataFormatterInterface
-{
+class DefaultExceptionDataFormatter implements ExceptionDataFormatterInterface {
 	/**
 	 * {@inheritDoc}
 	 */
-	public function format(Throwable $e, ?int $exceptionId = null): array
-	{
+	public function format(Throwable $e, ?int $exceptionId = null):array {
 		if ($e instanceof HttpException && $e->statusCode >= 500) {
 			$level = Logger::LEVEL_ERROR;
 		} else {
 			$level = Logger::LEVEL_WARNING;
 		}
 
-		return ['level' => Logger::getLevelName($level), 'exception' => $exceptionId ?? $e->__toString()];
+		return ['level' => Logger::getLevelName($level), 'exception' => $exceptionId??$e->__toString()];
 	}
 }

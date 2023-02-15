@@ -8,20 +8,19 @@ namespace cusodede\opentracing\handlers\formatters;
  *
  * @package app\components\opentracing
  */
-interface DataFormattersFactory
-{
+interface DataFormattersFactory {
 	/**
 	 * @return RequestDataFormatterInterface
 	 */
-	public function getRequestDataFormatter(): RequestDataFormatterInterface;
+	public function getRequestDataFormatter():RequestDataFormatterInterface;
 
 	/**
 	 * @return ResponseDataFormatterInterface
 	 */
-	public function getResponseDataFormatter(): ResponseDataFormatterInterface;
+	public function getResponseDataFormatter():ResponseDataFormatterInterface;
 
 	/**
 	 * @return ExceptionDataFormatterInterface
 	 */
-	public function getExceptionDataFormatter(): ExceptionDataFormatterInterface;
+	public function getExceptionDataFormatter():ExceptionDataFormatterInterface;
 }

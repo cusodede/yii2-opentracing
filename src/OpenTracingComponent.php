@@ -82,9 +82,9 @@ class OpenTracingComponent extends Component {
 		}
 
 		if ($this->finish_on_shutdown) {
-			register_shutdown_function([$this,'finish']);
+			register_shutdown_function([$this, 'finish']);
 		} else {
-			Yii::$app->on(Application::EVENT_AFTER_REQUEST, [$this,'finish']);
+			Yii::$app->on(Application::EVENT_AFTER_REQUEST, [$this, 'finish']);
 		}
 
 		$this->_tracer = new OTTracer();
@@ -97,7 +97,6 @@ class OpenTracingComponent extends Component {
 			$eventHandlers->attach($this);
 		}
 	}
-
 
 	/**
 	 * Подготавливаем накопившиеся логи и отправляем в логгер.
