@@ -33,7 +33,7 @@ class HttpRequestHandler implements RootEventHandlerInterface {
 		});
 
 		$responseLogCallback = function() use ($tracingComponent) {
-			$tracingComponent->rootScope->getSpan()->log($tracingComponent->dataFormattersFactory->getResponseDataFormatter()->format(Yii::$app->request));
+			$tracingComponent->rootScope->getSpan()->log($tracingComponent->dataFormattersFactory->getResponseDataFormatter()->format(Yii::$app->response));
 
 			if (null !== $exception = ArrayHelper::getValue(Yii::$app->controller->module, 'errorHandler.exception')) {
 				try {
