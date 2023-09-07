@@ -15,7 +15,6 @@ class LoggerCest {
 	/**
 	 * Проверяет произвольную запись без обработчика, но с указанной категорией
 	 * @param FunctionalTester $I
-	 * @throws Throwable
 	 * @throws Exception
 	 */
 	public function log(FunctionalTester $I):void {
@@ -31,14 +30,13 @@ class LoggerCest {
 	}
 
 	/**
+	 * Проверяет необходимые поля в логе
 	 * @param FunctionalTester $I
-	 * @throws Throwable
 	 * @throws Exception
 	 */
 	public function trace(FunctionalTester $I):void {
 		$I->amOnRoute('site/index');
 		$I->seeResponseCodeIs(200);
-		//Сбрасываем лог в файл
 		Yii::getLogger()->flush();
 		$logFile = Yii::getAlias('@app/runtime/logs/ot-'.date('YmdH').'.log');
 		$I->assertFileExists($logFile);
@@ -50,32 +48,43 @@ class LoggerCest {
 
 		/*
 		 * Последняя строка в логе должна иметь вид
-		 * {"TStamp":"2022-06-17T08:10:24.131+00:00","trace_id":"011c30f465e8d12e21f253986fb2ccd8","parent_id":"0000000000000000","span_id":"b679ebe32f454ce2","duration":1666,"operationName":"application.request","req.host":"http://localhost","req.method":"GET","req.remote_ip":null,"req.remote_host":null,"req.remote_port":null,"req.url":"http://localhost/site/index","req.path":"site/index","req.referer":null,"req.size":0,"req.headers":{"user-agent":"Symfony BrowserKit","host":"localhost"},"req.body":[],"direction":"in","env":"test","rsp.http_code":200,"rsp.size":5,"rsp.headers":{"content-type":"text/html; charset=UTF-8"},"rsp.body":null,"user_id":null,"level":"info"}
+		 * {"TStamp":"2023-09-07T17:26:36.526+00:00","trace_id":"3f7b030f23632dc6cf17bf6e3f3d7ebd","trace_span_id":"1a56e8c035c17124","trace_parent_id":"0000000000000000","log_level":"Info","log_level_id":2,"message":"","app_name":"My Application","log_context":"cusodede\\opentracing\\OpenTracingComponent::extractSpanData","duration":4,"log_event_name":"application.request","app_version":"1.0","env_name":"test","url":"http://localhost/site/index","direction":"in"}
 		 */
 
+		// обязательные поля
 		$I->assertArrayHasKey("TStamp", $requestLogArray);
 		$I->assertArrayHasKey("trace_id", $requestLogArray);
-		$I->assertArrayHasKey("parent_id", $requestLogArray);
-		$I->assertArrayHasKey("span_id", $requestLogArray);
-		$I->assertArrayHasKey("req.host", $requestLogArray);
-		$I->assertArrayHasKey("req.url", $requestLogArray);
-		$I->assertEquals("0000000000000000", $requestLogArray["parent_id"]);
-		$I->assertEquals("in", $requestLogArray["direction"]);
-		/*Проверить всё и вся не получится, урл зависит от окружения, и остальные параметры тоже плавающие*/
+		$I->assertArrayHasKey("trace_span_id", $requestLogArray);
+		$I->assertArrayHasKey("trace_parent_id", $requestLogArray);
+		$I->assertEquals("0000000000000000", $requestLogArray["trace_parent_id"]);
+		$I->assertArrayHasKey("log_level", $requestLogArray);
+		$I->assertArrayHasKey("log_level_id", $requestLogArray);
+		$I->assertArrayHasKey("message", $requestLogArray);
+
+		// рекомендуемые поля
+		$I->assertArrayHasKey("log_context", $requestLogArray);
+		$I->assertArrayHasKey("app_name", $requestLogArray);
+		$I->assertArrayHasKey("duration", $requestLogArray);
+
+		// стандартные поля
+		$I->assertArrayHasKey("log_event_name", $requestLogArray);
+		$I->assertArrayHasKey("app_version", $requestLogArray);
+		$I->assertArrayHasKey("env_name", $requestLogArray);
 	}
 
 	/**
 	 * Отправляем запрос с уже существующим trace_id, он должен включиться в лог
 	 * @param FunctionalTester $I
 	 * @return void
+	 * @throws Exception
 	 */
 	public function incomingTrace(FunctionalTester $I):void {
-		$incomingHeaderContent = Functional::gen_trace_header();
+		$incomingHeaderContent = Functional::genTraceHeader();
 		$traceParts = explode('-', $incomingHeaderContent);
 		$I->haveHttpHeader('traceparent', $incomingHeaderContent);
 		$response = $I->sendGet('site/api');
 
-		$I->assertEquals(['status' => 'ok'], json_decode($response,true));
+		$I->assertEquals(['status' => 'ok'], json_decode($response, true));
 		$I->seeResponseCodeIs(200);
 		//Сбрасываем лог в файл
 		Yii::getLogger()->flush();
@@ -86,8 +95,13 @@ class LoggerCest {
 		$requestLogString = $logContents[count($logContents) - 1];
 		$requestLogArray = json_decode($requestLogString, true);
 
+		/*
+		 * Последняя строка в логе должна иметь вид
+		 * {"TStamp":"2023-09-07T17:34:12.382+00:00","trace_id":"020438bf1afbda90","trace_span_id":"f0c440e8c6dcdc9d","trace_parent_id":"36e677cd","log_level":"Info","log_level_id":2,"message":"","app_name":"My Application","log_context":"cusodede\\opentracing\\OpenTracingComponent::extractSpanData","duration":1,"log_event_name":"application.request","app_version":"1.0","env_name":"test","url":"http://localhost/site/api","direction":"in"}
+		 */
+
 		$I->assertEquals($traceParts[1], $requestLogArray["trace_id"]);
-		$I->assertEquals($traceParts[2], $requestLogArray["parent_id"]);
+		$I->assertEquals($traceParts[2], $requestLogArray["trace_parent_id"]);
 	}
 
 }

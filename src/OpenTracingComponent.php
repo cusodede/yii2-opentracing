@@ -3,18 +3,18 @@ declare(strict_types = 1);
 
 namespace cusodede\opentracing;
 
+use cusodede\opentracing\handlers\formatters\DataFormattersFactory;
 use cusodede\opentracing\handlers\formatters\DefaultDataFormattersFactory;
 use cusodede\opentracing\handlers\HttpRequestHandler;
 use cusodede\opentracing\handlers\RootEventHandlerInterface;
-use cusodede\opentracing\handlers\formatters\DataFormattersFactory;
 use DateTime;
 use OpenTracing\GlobalTracer;
+use Throwable;
 use Yii;
 use yii\base\Application;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\StringHelper;
-use Throwable;
 use yii\log\Logger;
 
 /**
@@ -110,7 +110,7 @@ class OpenTracingComponent extends Component {
 		$this->_tracer->flush();
 
 		foreach ($logsData as $spanLogData) {
-			Yii::getLogger()->log($spanLogData, Logger::LEVEL_INFO, 'opentracing');
+			Yii::getLogger()->log($spanLogData, Logger::LEVEL_INFO, self::CATEGORY);
 		}
 	}
 
@@ -119,20 +119,28 @@ class OpenTracingComponent extends Component {
 	 * @return array
 	 */
 	private function extractSpanData(OTSpan $span):array {
-		$data = [
+		return array_merge([
+
+			// обязательные поля
 			'TStamp' => DateTime::createFromFormat('U.u', number_format($span->getStartTime(), 6, '.', ''))->format(DateTime::RFC3339_EXTENDED),
 			'trace_id' => $span->getContext()->getTraceId(),
-			'parent_id' => $span->getContext()->getParentSpanId(),
-			'span_id' => $span->getContext()->getSpanId(),
+			'trace_span_id' => $span->getContext()->getSpanId(),
+			'trace_parent_id' => $span->getContext()->getParentSpanId(),
+			'log_level' => 'Info',
+			'log_level_id' => 2,
+			'message' => '',
+
+			// рекомендуемые поля
+			'app_name' => Yii::$app->name,
+			'log_context' => sprintf('%s::%s', __CLASS__, __FUNCTION__),
 			'duration' => $span->getDuration(),
-			'operationName' => $span->getOperationName()
-		];
 
-		$logData = array_merge($data, $span->getTags(), $span->getContext()->getItems(), ...array_column($span->getLogs(), 'fields'));
+			// стандартные поля
+			'log_event_name' => $span->getOperationName(),
+			'app_version' => Yii::$app->version,
+			'env_name' => YII_ENV,
 
-		$logData['level'] = $logData['level']??'info';
-
-		return $logData;
+		], $span->getTags(), $span->getContext()->getItems(), ...array_column($span->getLogs(), 'fields'));
 	}
 
 	/**
