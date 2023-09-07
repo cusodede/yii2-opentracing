@@ -2,9 +2,7 @@
 declare(strict_types = 1);
 use yii\caching\DummyCache;
 
-$db = require __DIR__.'/db.php';
-
-$config = [
+return [
 	'id' => 'basic-console',
 	'basePath' => dirname(__DIR__),
 	'controllerNamespace' => 'app\commands',
@@ -23,5 +21,3 @@ $config = [
 	],
 	'params' => [],
 ];
-
-return $config;

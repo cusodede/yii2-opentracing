@@ -1,4 +1,4 @@
-<?php /** @noinspection UsingInclusionReturnValueInspection */
+<?php
 declare(strict_types = 1);
 
 use app\models\Users;
@@ -9,9 +9,7 @@ use yii\caching\DummyCache;
 use yii\web\AssetManager;
 use yii\web\ErrorHandler;
 
-$db = require __DIR__.'/db.php';
-
-$config = [
+return [
 	'id' => 'basic',
 	'basePath' => dirname(__DIR__),
 	'bootstrap' => ['log', 'opentracing'],
@@ -50,10 +48,10 @@ $config = [
 			'targets' => [
 				[
 					'class' => OpenTracingFileTarget::class,
-					'categories' => ['opentracing'],
-					'exportInterval' => 1,//выключаю буферизацию
+					'categories' => [OpenTracingComponent::CATEGORY],
+					'exportInterval' => 1,
 					'logVars' => [],
-					'logFile' => fn():string => '@app/runtime/logs/ot-'.date('YmdH').'.log'
+					'logFile' => static fn():string => '@app/runtime/logs/ot-'.date('YmdH').'.log',
 				]
 			],
 		],
@@ -72,5 +70,3 @@ $config = [
 		'bsVersion' => '4'
 	],
 ];
-
-return $config;
