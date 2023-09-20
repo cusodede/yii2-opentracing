@@ -17,7 +17,7 @@ class Functional extends Module {
 	 * @return string
 	 * @throws Exception
 	 */
-	public static function gen_trace_header():string {
+	public static function genTraceHeader():string {
 		return sprintf("00-%016x-%08x-00", random_int(0, 0xfffffffffffffff), random_int(0, 0xffffffff));
 	}
 
