@@ -1,7 +1,7 @@
 # yii2-opentracing
 OpenTracing support component
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/cusodede/yii2-opentracing/CI)
+[![Build Status](https://github.com/cusodede/yii2-opentracing/actions/workflows/ci.yml/badge.svg)](https://github.com/cusodede/yii2-opentracing/actions)
 
 # Установка
 
